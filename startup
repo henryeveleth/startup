@@ -1,0 +1,186 @@
+#!/usr/bin/env ruby
+pinchme = 
+"# PinchMe server
+tell first session of first tab of terminal
+	
+	write text 'cd ~/GIT/PinchMe'
+	write text 'source ~/.bashrc'
+	write text 'clear'
+	write text 'rails s -p 3000'
+
+	set name to 'pm s 3000'
+end tell
+
+# PinchMe console
+tell terminal
+		set t to (create tab with default profile)
+		tell first session of t
+				write text 'cd ~/GIT/PinchMe'
+				write text 'source ~/.bashrc'
+				write text 'clear'
+				write text 'rails c'
+
+				set name to 'pm c 3000'
+		end tell
+end tell"
+
+def osascript(script)
+  system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
+end
+
+
+
+ARGV.each do |arg|
+	if arg == "pinchme"
+		osascript <<-END
+			tell application "iTerm2"
+				activate
+				set terminal to (create window with default profile)
+				
+				tell first session of first tab of terminal
+					write text "cd ~/GIT/PinchMe"
+					write text "source ~/.bashrc"
+					write text "clear"
+					write text "rails s -p 3000"
+
+					set name to "pm s 3000"
+				end tell
+				
+				tell terminal
+						set t to (create tab with default profile)
+						tell first session of t
+								write text "cd ~/GIT/PinchMe"
+								write text "source ~/.bashrc"
+								write text "clear"
+								write text "rails c"
+
+								set name to "pm c 3000"
+						end tell
+				end tell
+				
+		 	end tell
+		END
+	elsif arg == "seeker"
+		osascript <<-END
+			tell application "iTerm2"
+				activate
+				set terminal to (create window with default profile)
+				
+				# Seeker server
+				tell first session of first tab of terminal
+					write text "cd ~/GIT/Seeker"
+					write text "source ~/.bashrc"
+					write text "clear"
+					write text "rails s -p 3003"
+
+					set name to "seeker s 3003"
+				end tell
+
+				# Seeker console
+			  tell terminal
+			      set t to (create tab with default profile)
+			      tell first session of t
+			          write text "cd ~/GIT/Seeker"
+								write text "source ~/.bashrc"
+			          write text "clear"
+			          write text "rails c"
+
+			          set name to "seeker c 3003"
+			      end tell
+			  end tell
+
+				# Kinesis
+			  tell terminal
+			      set t to (create tab with default profile)
+			      tell first session of t
+			          write text "cd ~/GIT/Seeker"
+								write text "source ~/.bashrc"
+			          write text "clear"
+			          write text "rake kinesis:run"
+
+			          set name to "kinesis"
+			      end tell
+			  end tell
+
+				# Elasticsearch
+				tell terminal
+						set t to (create tab with default profile)
+						tell first session of t
+								write text "cd ~/GIT/Seeker"
+								write text "source ~/.bashrc"
+								write text "clear"
+								write text "/usr/local/elasticsearch-5.5.0/bin/elasticsearch"
+
+								set name to "es 9200"
+						end tell
+				end tell
+
+				# Kibana
+				tell terminal
+						set t to (create tab with default profile)
+						tell first session of t
+								write text "cd ~/GIT/Seeker"
+								write text "source ~/.bashrc"
+								write text "clear"
+								write text "/usr/local/kibana-5.4.1-darwin-x86_64/bin/kibana"
+
+								set name to "kibana 5601"
+						end tell
+				end tell
+
+				# SeekerGUI
+				tell terminal
+						set t to (create tab with default profile)
+						tell first session of t
+								write text "cd ~/GIT/SeekerGUI"
+								write text "source ~/.bashrc"
+								write text "clear"
+								write text "PORT=7777 npm start"
+
+								set name to "seeker gui"
+						end tell
+				end tell
+		 	end tell
+		END
+	end
+end
+
+
+
+
+
+# osascript << EOD
+# 	tell application "iTerm2"
+# 		activate
+# 		set terminal to (create window with default profile)
+# 
+# 
+# 
+	
+		# Ledger Server
+# 		tell terminal
+# 				set t to (create tab with default profile)
+# 				tell first session of t
+# 						write text "cd ~/GIT/Ledger"
+# 						write text "source ~/.bashrc"
+# 						write text "clear"
+# 						write text "rails s -p 3001"
+# 
+# 						set name to "ledger s 3001"
+# 				end tell
+# 		end tell
+# 
+# 		# Ledger Server
+# 		tell terminal
+# 				set t to (create tab with default profile)
+# 				tell first session of t
+# 						write text "cd ~/GIT/Ledger"
+# 						write text "source ~/.bashrc"
+# 						write text "clear"
+# 						write text "rails c"
+# 
+# 						set name to "ledger c 3001"
+# 				end tell
+# 		end tell
+# 	end tell
+# EOD
