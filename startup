@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-valid_options = ["pinchme", "seeker", "ledger", "profiler", "all"]
+valid_options = ["pinchme", "seeker", "ledger", "profiler", "all", "apps"]
 
 option = ARGV.first
 port = ARGV[1]
@@ -13,13 +13,17 @@ def osascript(script)
   system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
 end
 
+osascript <<-END
+	do shell script "touch ~/GIT/startup/.tmp-sessions && rm ~/GIT/startup/.tmp-sessions"
+END
+
 if option == "pinchme"
 	port = "3000" if port.nil?
 	osascript <<-END
 		tell application "iTerm2"
 			activate
 			set terminal to (create window with default profile)
-	
+			
 			# PinchMe Server
 			tell first session of first tab of terminal
 				write text "cd ~/GIT/PinchMe"
@@ -43,6 +47,9 @@ if option == "pinchme"
 					end tell
 			end tell
 			
+			tell terminal
+				do shell script "echo pinchme " & id & " >> ~/GIT/startup/.tmp-sessions"
+			end tell
 	 	end tell
 	END
 elsif option == "seeker"
@@ -126,6 +133,10 @@ elsif option == "seeker"
 							set name to "seeker gui"
 					end tell
 			end tell
+			
+			tell terminal
+				do shell script "echo seeker " & id & " >> ~/GIT/startup/.tmp-sessions"
+			end tell
 	 	end tell
 	END
 elsif option == "ledger"
@@ -157,6 +168,10 @@ elsif option == "ledger"
 							set name to "ledger c #{port}"
 					end tell
 			end tell
+			
+			tell terminal
+				do shell script "echo ledger " & id & " >> ~/GIT/startup/.tmp-sessions"
+			end tell
 		end tell
 	END
 elsif option == "profiler"
@@ -173,7 +188,7 @@ elsif option == "profiler"
 				write text "clear"
 				write text "rails s -p #{port}"
 
-				set name to "pm s #{port}"
+				set name to "profiler s #{port}"
 			end tell
 			
 			# Profiler Console
@@ -185,10 +200,13 @@ elsif option == "profiler"
 							write text "clear"
 							write text "rails c"
 
-							set name to "pm c #{port}"
+							set name to "profiler c #{port}"
 					end tell
 			end tell
 			
+			tell terminal
+				do shell script "echo profiler " & id & " >> ~/GIT/startup/.tmp-sessions"
+			end tell
 	 	end tell
 	END
 elsif option == "all"
@@ -350,6 +368,40 @@ elsif option == "all"
 							set name to "pm c 3001"
 					end tell
 			end tell
+			
+			tell terminal
+				do shell script "echo all " & id & " >> ~/GIT/startup/.tmp-sessions"
+			end tell
 	 	end tell
+	END
+elsif option == "apps"
+	osascript <<-END
+		tell application "Slack"
+			activate
+		end tell
+		
+		tell application "Sequel Pro"
+			activate
+		end tell
+		
+		tell application "Firefox"
+			activate
+		end tell
+		
+		tell application "Evernote"
+			activate
+		end tell
+		
+		tell application "Atom"
+			activate
+		end tell
+		
+		tell application "Microsoft Outlook"
+			activate
+		end tell
+		
+		tell application "Postman"
+			activate
+		end tell
 	END
 end
