@@ -17,3 +17,4 @@ TODO:
 - For 'all', maybe allow ports to be customized, or at least not hardcoded in the applescript.
 - Maybe allow theme changing, user can specify the iterm profile.
 - I believe ledge is supposed to be on 3001, but I put it on 3004 in favor of Profiler being on 3001.
+- Add configurations which can be read from a .yml file or something
