@@ -3,23 +3,23 @@ require 'optparse'
 require 'applescript'
 valid_options = ["pinchme", "seeker", "ledger", "profiler", "all", "apps"]
 
-app_name = ARGV.first
-puts "Please provide a better app name." unless valid_options.include? app_name
-exit unless valid_options.include? app_name
-
 options = {}
-options[:app] = app_name
 OptionParser.new do |parser|
 	parser.banner = "Usage: startup <app-name> [options]"
 	parser.on("-p=s","--port","Port for application.") {|port| options[:port] = port}
 	parser.on("--profile=s","iTerm2 profile.") {|profile| options[:profile] = profile}
 end.parse!
 
+app_name = ARGV.first
+puts "Please provide a better app name." unless valid_options.include? app_name
+exit unless valid_options.include? app_name
+options[:app] = app_name
+
 def osascript(script)
   system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
 end
 
-def startup(app)
+def startup(app, port=nil, profile=nil)
 	if app == "pinchme"
 		port = "3000" if port.nil?
 		osascript <<-END
@@ -212,171 +212,6 @@ def startup(app)
 				end tell
 		 	end tell
 		END
-	elsif app == "all"
-		# TODO ports array here: [pmport, ledgerport, ...]
-		osascript <<-END
-			tell application "iTerm2"
-				activate
-				set terminal to (create window with default profile)
-		
-				# PinchMe Server
-				tell first session of first tab of terminal
-					write text "cd ~/GIT/PinchMe"
-					write text "source ~/.bashrc"
-					write text "clear"
-					write text "rails s -p 3000"
-
-					set name to "pm s 3000"
-				end tell
-				
-				# PinchMe Console
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-								write text "cd ~/GIT/PinchMe"
-								write text "source ~/.bashrc"
-								write text "clear"
-								write text "rails c"
-
-								set name to "pm c 3000"
-						end tell
-				end tell
-				
-				# Seeker server
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-							write text "cd ~/GIT/Seeker"
-							write text "source ~/.bashrc"
-							write text "clear"
-							write text "rails s -p 3003"
-
-							set name to "seeker s 3003"
-						end tell
-				end tell
-
-				# Seeker console
-			  tell terminal
-			      set t to (create tab with default profile)
-			      tell first session of t
-			          write text "cd ~/GIT/Seeker"
-								write text "source ~/.bashrc"
-			          write text "clear"
-			          write text "rails c"
-
-			          set name to "seeker c 3003"
-			      end tell
-			  end tell
-
-				# Kinesis
-			  tell terminal
-			      set t to (create tab with default profile)
-			      tell first session of t
-			          write text "cd ~/GIT/Seeker"
-								write text "source ~/.bashrc"
-			          write text "clear"
-			          write text "rake kinesis:run"
-
-			          set name to "kinesis"
-			      end tell
-			  end tell
-
-				# Elasticsearch
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-								write text "cd ~/GIT/Seeker"
-								write text "source ~/.bashrc"
-								write text "clear"
-								write text "/usr/local/elasticsearch-5.5.0/bin/elasticsearch"
-
-								set name to "es 9200"
-						end tell
-				end tell
-
-				# Kibana
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-								write text "cd ~/GIT/Seeker"
-								write text "source ~/.bashrc"
-								write text "clear"
-								write text "/usr/local/kibana-5.4.1-darwin-x86_64/bin/kibana"
-
-								set name to "kibana 5601"
-						end tell
-				end tell
-
-				# SeekerGUI
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-								write text "cd ~/GIT/SeekerGUI"
-								write text "source ~/.bashrc"
-								write text "clear"
-								write text "PORT=7777 npm start"
-
-								set name to "seeker gui"
-						end tell
-				end tell
-				
-				# Ledger Server
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-							write text "cd ~/GIT/Ledger"
-							write text "source ~/.bashrc"
-							write text "clear"
-							write text "rails s -p 3004"
-
-							set name to "ledger s 3004"
-						end tell
-				end tell
-
-				# Ledger Console
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-								write text "cd ~/GIT/Ledger"
-								write text "source ~/.bashrc"
-								write text "clear"
-								write text "rails c"
-
-								set name to "ledger c 3004"
-						end tell
-				end tell
-				
-				# Profiler Server
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-							write text "cd ~/GIT/Profiler"
-							write text "source ~/.bashrc"
-							write text "clear"
-							write text "rails s -p 3001"
-
-							set name to "pm s 3001"
-						end tell
-				end tell
-				
-				# Profiler Console
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-								write text "cd ~/GIT/Profiler"
-								write text "source ~/.bashrc"
-								write text "clear"
-								write text "rails c"
-
-								set name to "pm c 3001"
-						end tell
-				end tell
-				
-				tell terminal
-					do shell script "echo all " & id & " >> ~/GIT/startup/.tmp-sessions"
-				end tell
-		 	end tell
-		END
 	elsif app == "apps"
 		osascript <<-END
 			tell application "Slack"
@@ -407,8 +242,12 @@ def startup(app)
 				activate
 			end tell
 		END
+	elsif app == "all"
+		startup("pinchme")
+		startup("seeker")
+		startup("ledger")
+		startup("profiler")
 	end
-
 end
 
-startup(options[:app])
+startup(options[:app],options[:port],options[:profile])
