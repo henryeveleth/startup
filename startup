@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'optparse'
-require 'applescript'
 valid_options = ["pinchme", "seeker", "ledger", "profiler", "all", "apps"]
 
 options = {}
