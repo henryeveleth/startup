@@ -3,22 +3,6 @@ require 'optparse'
 require 'byebug'
 require 'yaml'
 
-# opts = {"valid_options" => ["pinchme", "seeker", "ledger", "profiler", "seekergui", "all", "apps"]}
-# git_directory = {"git_directory" => "~/GIT/"}
-# apps = {"apps" => {"pinchme" => {"directory" => "PinchMe", "defaults" => {"port" => 3000, "profile" => "default"}, "services" => ["server", "console"] },
-#  				"seeker" => {"directory" => "Seeker", "defaults" => {"port" => 3003, "profile" => "default"}, "services" => ["server", "console", "kinesis", "elasticsearch", "kibana", "seekergui"] },
-#  				"seekergui" => {"directory" => "SeekerGUI", "defaults" => {"port" => 7777, "profile" => "default"}, "services" => ["npm"] },
-#  				"ledger" => {"directory" => "Ledger", "defaults" => {"port" => 3002, "profile" => "default"}, "services" => ["server", "console"] },
-#  				"profiler" => {"directory" => "Profiler", "defaults" => {"port" => 3001, "profile" => "default"}, "services" => ["server", "console"] },
-#  				"opq" => {"directory" => "opq", "defaults" => {"port" => 3004, "profile" => "default"}, "services" => ["server", "console"] },
-#  				"apps" => {"directory" => nil, "defaults" => {"port" => nil, "profile" => nil}, "services" => ["slack", "sequel_pro", "firefox", "atom", "evernote", "postman", "outlook"] }}}
-# 
-# aliases = {"aliases" => 
-# 	{"apps" => {"pinchme" => ["pm"], "seekergui" => ["gui"]}, "services" => {"server" => ["s"], "console" => ["c"], "elasticsearch" => ["es"], "seekergui" => ["gui"]}}}
-# 
-# File.open("./config.yml", "w") {|f| f.write([*opts,*git_directory,*apps,*aliases].to_h.to_yaml)}
-# exit
-
 @config = begin
   YAML.load(File.open("./config.yml"))
 rescue Errno::ENOENT
