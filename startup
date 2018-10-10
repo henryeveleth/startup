@@ -35,7 +35,7 @@ def startup(app, port, profile, services)
 	port = @config["apps"][app]["defaults"]["port"] if port.nil?
 	profile = @config["apps"][app]["defaults"]["profile"] if profile.nil?
 	# TODO clean this up, refactor
-	services = if services
+	services = if services.any?
 								services = services.map {|s| @config["aliases"]["services"][s]}
 								services = services.flatten.select {|s| @config["apps"][app]["services"].include?(s) }
 							else
@@ -44,31 +44,34 @@ def startup(app, port, profile, services)
 	services.flatten!
 	services.map! {|s| [s,@config["aliases"]["commands"][s].first]}
 	services = services.to_h
-
+  
 	if app == "pinchme"
     terminal_start = <<-END
       tell application "iTerm2"
         activate
         set terminal to (create window with #{if profile == 'default' then 'default profile' else 'profile "' + profile + '"' end})
       END
-      # 'tell terminal
-      #     set t to (create tab with default profile)
-      #     tell first session of t
-      #         write text "cd #{git_directory + directory}"
-      #         write text "echo HELLO"
-      #         write text "#{v} -p #{port}"
-      # 
-      #         set name to "#{app} #{k} #{port}"
-      #     end tell
-      # end tell'
     
+    # For now just close the first tab. Later, try moving it to end of tabs list.
+    terminal_first_sesh = <<-END
+      tell first session of first tab of terminal
+        close
+      end tell
+    END
+    
+    # TODO refactor this
     services_tabs_raw = ""
     services.each do |k,v|
+      command = (k == "server") ? v + " -p " + port.to_s : v 
       services_tabs_raw += <<-END
         tell terminal
             set t to (create tab with default profile)
             tell first session of t
-                write text "echo HELLO"
+                write text "cd #{git_directory + directory}"
+                write text "clear"
+                write text "#{command}"
+        
+                set name to "#{app} #{k} #{port}"
             end tell
         end tell
       END
@@ -82,7 +85,7 @@ def startup(app, port, profile, services)
       end tell 
     END
     
-		osascript (terminal_start + service_tabs + terminal_end)
+		osascript (terminal_start + service_tabs + terminal_first_sesh + terminal_end)
 	elsif app == "seeker"
 		port = "3003" if port.nil?
 		osascript <<-END
