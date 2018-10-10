@@ -1,6 +1,29 @@
 #!/usr/bin/env ruby
 require 'optparse'
-valid_options = ["pinchme", "seeker", "ledger", "profiler", "all", "apps"]
+require 'byebug'
+require 'yaml'
+
+opts = {"valid_options" => ["pinchme", "seeker", "ledger", "profiler", "seekergui", "all", "apps"]}
+git_directory = {"git_directory" => "~/GIT/"}
+apps = {"pinchme" => {"directory" => "PinchMe", "defaults" => {"port" => 3000, "profile" => "default"}, "services" => ["server", "console"] },
+ 				"seeker" => {"directory" => "Seeker", "defaults" => {"port" => 3003, "profile" => "default"}, "services" => ["server", "console", "kinesis", "elasticsearch", "kibana", "seekergui"] },
+ 				"seekergui" => {"directory" => "SeekerGUI", "defaults" => {"port" => 7777, "profile" => "default"}, "services" => ["npm"] },
+ 				"ledger" => {"directory" => "Ledger", "defaults" => {"port" => 3002, "profile" => "default"}, "services" => ["server", "console"] },
+ 				"profiler" => {"directory" => "Profiler", "defaults" => {"port" => 3001, "profile" => "default"}, "services" => ["server", "console"] },
+ 				"opq" => {"directory" => "opq", "defaults" => {"port" => 3004, "profile" => "default"}, "services" => ["server", "console"] },
+ 				"apps" => {"directory" => nil, "defaults" => {"port" => nil, "profile" => nil}, "services" => ["slack", "sequel_pro", "firefox", "atom", "evernote", "postman", "outlook"] }}
+
+aliases = {"aliases" => 
+	{"apps" => {"pinchme" => ["pm"], "seekergui" => ["gui"]}, 
+	"services" => {"server" => ["s"], "console" => ["c"], "elasticsearch" => ["es"], "seekergui" => ["gui"]}}}
+
+f = File.open("./config.yml", "w")
+f.write(opts.to_yaml)
+f.write(git_directory.to_yaml)
+f.write(apps.to_yaml)
+f.write(aliases.to_yaml)
+
+exit
 
 options = {}
 OptionParser.new do |parser|
@@ -17,6 +40,9 @@ options[:app] = app_name
 def osascript(script)
   system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
 end
+
+
+
 
 def startup(app, port=nil, profile=nil)
 	if app == "pinchme"
