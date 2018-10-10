@@ -44,35 +44,45 @@ def startup(app, port, profile, services)
 	services.flatten!
 	services.map! {|s| [s,@config["aliases"]["commands"][s].first]}
 	services = services.to_h
-	debugger
+
 	if app == "pinchme"
-		osascript <<-END
-			tell application "iTerm2"
-				activate
-				set terminal to (create window with #{if profile == 'default' then 'default profile' else 'profile "' + profile + '"' end})
-				
-				# PinchMe Server
-				tell first session of first tab of terminal
-					write text "cd #{git_directory + directory}"
-					write text "clear"
-					write text "rails s -p #{port}"
-
-					set name to "pm s #{port}"
-				end tell
-				
-				# PinchMe Console
-				tell terminal
-						set t to (create tab with default profile)
-						tell first session of t
-								write text "cd ~/GIT/PinchMe"
-								write text "clear"
-								write text "rails c"
-
-								set name to "pm c #{port}"
-						end tell
-				end tell
-		 	end tell
-		END
+    terminal_start = <<-END
+      tell application "iTerm2"
+        activate
+        set terminal to (create window with #{if profile == 'default' then 'default profile' else 'profile "' + profile + '"' end})
+      END
+      # 'tell terminal
+      #     set t to (create tab with default profile)
+      #     tell first session of t
+      #         write text "cd #{git_directory + directory}"
+      #         write text "echo HELLO"
+      #         write text "#{v} -p #{port}"
+      # 
+      #         set name to "#{app} #{k} #{port}"
+      #     end tell
+      # end tell'
+    
+    services_tabs_raw = ""
+    services.each do |k,v|
+      services_tabs_raw += <<-END
+        tell terminal
+            set t to (create tab with default profile)
+            tell first session of t
+                write text "echo HELLO"
+            end tell
+        end tell
+      END
+    end
+    
+    service_tabs = <<-END
+      #{services_tabs_raw}
+    END
+    
+    terminal_end = <<-END 
+      end tell 
+    END
+    
+		osascript (terminal_start + service_tabs + terminal_end)
 	elsif app == "seeker"
 		port = "3003" if port.nil?
 		osascript <<-END

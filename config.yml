@@ -7,7 +7,7 @@ valid_options:
 - seekergui
 - all
 - apps
-git_directory: "~/GIT/"
+git_directory: "~/Workspace/GIT/"
 apps:
   pinchme:
     directory: PinchMe
