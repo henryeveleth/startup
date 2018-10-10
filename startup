@@ -12,6 +12,7 @@ end
 
 valid_options = @config["valid_options"]
 
+#TODO remove this optparse now that a config is being used
 options = {:services => []}
 OptionParser.new do |parser|
 	parser.banner = "Usage: startup <app-name> [options]"
@@ -81,7 +82,7 @@ def startup(app, port, profile, services)
       #{services_tabs_raw}
     END
     
-    terminal_end = <<-END 
+    terminal_end = <<-END
       end tell 
     END
     
