@@ -28,7 +28,7 @@ def startup(app, port=nil, profile=nil)
 				
 				# PinchMe Server
 				tell first session of first tab of terminal
-					write text "cd ~/GIT/PinchMe"
+					write text "cd ~/Workspace/GIT/PinchMe"
 					write text "clear"
 					write text "rails s -p #{port}"
 
@@ -39,8 +39,8 @@ def startup(app, port=nil, profile=nil)
 				tell terminal
 						set t to (create tab with default profile)
 						tell first session of t
-								write text "cd ~/GIT/PinchMe"
-								write text "source ~/.bashrc								write text "clear"
+								write text "cd ~/Workspace/GIT/PinchMe"
+								write text "clear"
 								write text "rails c"
 
 								set name to "pm c #{port}"
@@ -57,7 +57,7 @@ def startup(app, port=nil, profile=nil)
 				
 				# Seeker server
 				tell first session of first tab of terminal
-					write text "cd ~/GIT/Seeker"
+					write text "cd ~/Workspace/GIT/Seeker"
 					write text "clear"
 					write text "rails s -p #{port}"
 
@@ -68,7 +68,7 @@ def startup(app, port=nil, profile=nil)
 			  tell terminal
 			      set t to (create tab with default profile)
 			      tell first session of t
-			          write text "cd ~/GIT/Seeker"
+			          write text "cd ~/Workspace/GIT/Seeker"
 			          write text "clear"
 			          write text "rails c"
 
@@ -80,7 +80,7 @@ def startup(app, port=nil, profile=nil)
 			  tell terminal
 			      set t to (create tab with default profile)
 			      tell first session of t
-			          write text "cd ~/GIT/Seeker"
+			          write text "cd ~/Workspace/GIT/Seeker"
 			          write text "clear"
 			          write text "rake kinesis:run"
 
@@ -92,7 +92,7 @@ def startup(app, port=nil, profile=nil)
 				tell terminal
 						set t to (create tab with default profile)
 						tell first session of t
-								write text "cd ~/GIT/Seeker"
+								write text "cd ~/Workspace/GIT/Seeker"
 								write text "clear"
 								write text "/usr/local/elasticsearch-5.5.0/bin/elasticsearch"
 
@@ -104,7 +104,7 @@ def startup(app, port=nil, profile=nil)
 				tell terminal
 						set t to (create tab with default profile)
 						tell first session of t
-								write text "cd ~/GIT/Seeker"
+								write text "cd ~/Workspace/GIT/Seeker"
 								write text "clear"
 								write text "/usr/local/kibana-5.4.1-darwin-x86_64/bin/kibana"
 
@@ -116,7 +116,7 @@ def startup(app, port=nil, profile=nil)
 				tell terminal
 						set t to (create tab with default profile)
 						tell first session of t
-								write text "cd ~/GIT/SeekerGUI"
+								write text "cd ~/Workspace/GIT/SeekerGUI"
 								write text "clear"
 								write text "PORT=7777 npm start"
 
@@ -134,7 +134,7 @@ def startup(app, port=nil, profile=nil)
 				
 				# Ledger Server
 				tell first session of first tab of terminal
-					write text "cd ~/GIT/Ledger"
+					write text "cd ~/Workspace/GIT/Ledger"
 					write text "clear"
 					write text "rails s -p #{port}"
 
@@ -145,7 +145,7 @@ def startup(app, port=nil, profile=nil)
 				tell terminal
 						set t to (create tab with default profile)
 						tell first session of t
-								write text "cd ~/GIT/Ledger"
+								write text "cd ~/Workspace/GIT/Ledger"
 								write text "clear"
 								write text "rails c"
 
