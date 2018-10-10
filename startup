@@ -19,41 +19,57 @@ require 'yaml'
 # File.open("./config.yml", "w") {|f| f.write([*opts,*git_directory,*apps,*aliases].to_h.to_yaml)}
 # exit
 
-config = begin
+@config = begin
   YAML.load(File.open("./config.yml"))
 rescue Errno::ENOENT
 	puts "Config not provided!"
 	exit
 end
 
-valid_options = config["valid_options"]
+valid_options = @config["valid_options"]
 
-options = {}
+options = {:services => []}
 OptionParser.new do |parser|
 	parser.banner = "Usage: startup <app-name> [options]"
 	parser.on("-p=s","--port","Port for application.") {|port| options[:port] = port}
 	parser.on("--profile=s","iTerm2 profile.") {|profile| options[:profile] = profile}
+	parser.on("-s","--services s1,s2,...",Array,"Services to startup.") {|services| options[:services] += services}
 end.parse!
+options[:services] += ARGV[1...ARGV.length]
 
-app_name = ARGV.first
-puts "Please provide a better app name." unless valid_options.include? app_name
-exit unless valid_options.include? app_name
+app = ARGV.first
+puts "Please provide a better app name." unless valid_options.include? app
+exit unless valid_options.include? app
 
 def osascript(script)
   system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
 end
 
-def startup(app, port=nil, profile=nil)
+def startup(app, port, profile, services)
+	git_directory = @config["git_directory"]
+	directory = @config["apps"][app]["directory"]
+	port = @config["apps"][app]["defaults"]["port"] if port.nil?
+	profile = @config["apps"][app]["defaults"]["profile"] if profile.nil?
+	# TODO clean this up, refactor
+	services = if services
+								services = services.map {|s| @config["aliases"]["services"][s]}
+								services = services.flatten.select {|s| @config["apps"][app]["services"].include?(s) }
+							else
+								@config["apps"][app]["services"]
+							end
+	services.flatten!
+	services.map! {|s| [s,@config["aliases"]["commands"][s].first]}
+	services = services.to_h
+	debugger
 	if app == "pinchme"
-		port = "3000" if port.nil?
 		osascript <<-END
 			tell application "iTerm2"
 				activate
-				set terminal to (create window with default profile)
+				set terminal to (create window with #{if profile == 'default' then 'default profile' else 'profile "' + profile + '"' end})
 				
 				# PinchMe Server
 				tell first session of first tab of terminal
-					write text "cd ~/GIT/PinchMe"
+					write text "cd #{git_directory + directory}"
 					write text "clear"
 					write text "rails s -p #{port}"
 
@@ -246,7 +262,4 @@ def startup(app, port=nil, profile=nil)
 	end
 end
 
-options[:app] == app_name
-
-
-startup(options[:app],options[:port],options[:profile])
+startup(app,options[:port],options[:profile],options[:services])

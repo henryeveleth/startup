@@ -75,16 +75,21 @@ apps:
     - outlook
 aliases:
   apps:
-    pinchme:
-    - pm
-    seekergui:
-    - gui
+    pm:
+    - pinchme
+    gui:
+    - seekergui
   services:
+    s:
+    - server
+    c:
+    - console
+    es:
+    - elasticsearch
+    gui:
+    - seekergui
+  commands:
     server:
-    - s
+    - rails server
     console:
-    - c
-    elasticsearch:
-    - es
-    seekergui:
-    - gui
+    - rails console
