@@ -4,7 +4,7 @@ require 'byebug'
 require 'yaml'
 
 @config = begin
-  YAML.load(File.open("./config.yml"))
+  YAML.load(File.open("config.yml"))
 rescue Errno::ENOENT
 	puts "Config not provided!"
 	exit
