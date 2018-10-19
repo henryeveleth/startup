@@ -205,6 +205,8 @@ def startup(app, port, profile, services)
     terminal_end = <<-END
       end tell 
 		END
+
+		osascript (terminal_start + service_tabs + terminal_first_sesh + terminal_end)
 	elsif app == "profiler"
 		port = "3001" if port.nil?
 		osascript <<-END
