@@ -38,7 +38,7 @@ apps:
   ledger:
     directory: Ledger
     defaults:
-      port: 3002
+      port: 3001
       profile: default
     services:
     - server
@@ -46,7 +46,7 @@ apps:
   profiler:
     directory: Profiler
     defaults:
-      port: 3001
+      port: 3002
       profile: default
     services:
     - server
