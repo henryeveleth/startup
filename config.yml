@@ -1,0 +1,102 @@
+---
+valid_options:
+- pinchme
+- seeker
+- ledger
+- profiler
+- seekergui
+- all
+- apps
+git_directory: "~/Workspace/GIT/"
+apps:
+  pinchme:
+    directory: PinchMe
+    defaults:
+      port: 3000
+      profile: default
+    services:
+    - server
+    - console
+  seeker:
+    directory: Seeker
+    defaults:
+      port: 3003
+      profile: default
+    services:
+    - server
+    - console
+    - kinesis
+    - elasticsearch
+    - kibana
+  seekergui:
+    directory: SeekerGUI
+    defaults:
+      port: 7777
+      profile: default
+    services:
+    - npm
+  ledger:
+    directory: Ledger
+    defaults:
+      port: 3002
+      profile: default
+    services:
+    - server
+    - console
+  profiler:
+    directory: Profiler
+    defaults:
+      port: 3001
+      profile: default
+    services:
+    - server
+    - console
+  opq:
+    directory: opq
+    defaults:
+      port: 3004
+      profile: default
+    services:
+    - server
+    - console
+  apps:
+    directory:
+    defaults:
+      port:
+      profile:
+    services:
+    - slack
+    - sequel_pro
+    - firefox
+    - atom
+    - evernote
+    - postman
+    - outlook
+aliases:
+  apps:
+    pm:
+    - pinchme
+    gui:
+    - seekergui
+  services:
+    s:
+    - server
+    c:
+    - console
+    es:
+    - elasticsearch
+    gui:
+    - seekergui
+  commands:
+    server:
+    - rails server
+    console:
+    - rails console
+    kinesis:
+    - rake kinesis:run
+    elasticsearch:
+    - /usr/local/elasticsearch-5.5.0/bin/elasticsearch
+    kibana:
+    - /usr/local/kibana-5.4.1-darwin-x86_64/bin/kibana
+    npm:
+    - npm start
