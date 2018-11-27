@@ -28,7 +28,6 @@ apps:
     - kinesis
     - elasticsearch
     - kibana
-    - seekergui
   seekergui:
     directory: SeekerGUI
     defaults:
@@ -61,10 +60,10 @@ apps:
     - server
     - console
   apps:
-    directory: 
+    directory:
     defaults:
-      port: 
-      profile: 
+      port:
+      profile:
     services:
     - slack
     - sequel_pro
@@ -93,3 +92,11 @@ aliases:
     - rails server
     console:
     - rails console
+    kinesis:
+    - rake kinesis:run
+    elasticsearch:
+    - /usr/local/elasticsearch-5.5.0/bin/elasticsearch
+    kibana:
+    - /usr/local/kibana-5.4.1-darwin-x86_64/bin/kibana
+    npm:
+    - npm start
