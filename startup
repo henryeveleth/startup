@@ -3,19 +3,49 @@ require 'optparse'
 require 'byebug'
 require 'yaml'
 
+CONFIG_FILE = "config.yml"
+
 class Startup
-	def initialize(config, app)
-		@@config = config
+	def initialize(app, options={})
+		@@config =
+			begin
+				f = File.join(__dir__,"/#{CONFIG_FILE}")
+				f = File.open(f)
+			  YAML.load(f)
+			rescue Errno::ENOENT
+				puts "Config not provided!"
+				exit
+			end
 
 		@app = app
-		@directory = @@config["apps"][app]["directory"]
 
-		@port = port || @@config["apps"][app]["defaults"]["port"]
-		@profile = profile || @@config["apps"][app]["defaults"]["profile"]
+		if !@@config["valid_options"].include? @app
+			puts "App name not valid! Options are [#{@@config['valid_options'].join(', ')}]."
+			exit
+		end
+
+		@git_directory = @@config["git_directory"]
+		@directory = @@config["apps"][@app]["directory"]
+
+		@port = options[:port] || @@config["apps"][@app]["defaults"]["port"]
+		@profile = options[:profile] || @@config["apps"][@app]["defaults"]["profile"]
+
+		@services = if options[:services].any?
+									options[:services]
+								else
+									@@config["apps"][@app]["services"]
+								end
 	end
 
-	def execute(app, port, profile, services)
-		if app == "apps"
+	def process_services
+		@services = @services.map {|s| @@config["aliases"]["services"][s] || s}
+		@services = @services.flatten.select {|s| @@config["apps"][@app]["services"].include?(s) }
+		@services = @services.map {|s| [s,@@config["aliases"]["commands"][s].first]}
+		@services = @services.to_h
+	end
+
+	def execute
+		if @app == "apps"
 			osascript <<-END
 				tell application "Slack"
 					activate
@@ -45,30 +75,23 @@ class Startup
 					activate
 				end tell
 			END
-		elsif app == "all"
-			startup("pinchme")
-			startup("seeker")
-			startup("ledger")
-			startup("profiler")
+		elsif @app == "all"
+			execute("pinchme")
+			execute("seeker")
+			execute("ledger")
+			execute("profiler")
 		else
-			git_directory, directory
-			git_directory = @config["git_directory"]
-
-			# TODO clean this up, refactor
-			services = if services.any?
-										services = services.map {|s| @config["aliases"]["services"][s]}
-										services = services.flatten.select {|s| @config["apps"][app]["services"].include?(s) }
-									else
-										@config["apps"][app]["services"]
-									end
-			services.flatten!
-			services.map! {|s| [s,@config["aliases"]["commands"][s].first]}
-			services = services.to_h
+			process_services
+			profile_string = if @profile == 'default'
+												'default profile'
+											 else
+												'profile "' + @profile + '"'
+											 end
 
 			terminal_start = <<-END
 				tell application "iTerm2"
 					activate
-					set terminal to (create window with #{if profile == 'default' then 'default profile' else 'profile "' + profile + '"' end})
+					set terminal to (create window with #{profile_string})
 				END
 
 			# For now just close the first tab. Later, try moving it to end of tabs list.
@@ -79,22 +102,22 @@ class Startup
 			END
 
 			services_tabs_raw = ""
-			services.each do |k,v|
-				command = (k == "server") ? v + " -p " + port.to_s : v
+			@services.each do |k,v|
+				command = (k == "server") ? v + " -p " + @port.to_s : v
 
-				if app == 'seekergui'
-					command = "PORT=" + port.to_s + " " + v
+				if @app == 'seekergui'
+					command = "PORT=" + @port.to_s + " " + v
 				end
 
 				services_tabs_raw += <<-END
 					tell terminal
 							set t to (create tab with default profile)
 							tell first session of t
-									write text "cd #{git_directory + directory}"
+									write text "cd #{@git_directory + @directory}"
 									write text "clear"
 									write text "#{command}"
 
-									set name to "#{app} #{k} #{port}"
+									set name to "#{@app} #{k} #{@port}"
 							end tell
 					end tell
 				END
@@ -111,20 +134,12 @@ class Startup
 			osascript (terminal_start + service_tabs + terminal_first_sesh + terminal_end)
 		end
 	end
+
+	def osascript(script)
+		system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
+	end
 end
 
-@config = begin
-	f = File.join(__dir__,"/config.yml")
-	f = File.open(f)
-  YAML.load(f)
-rescue Errno::ENOENT
-	puts "Config not provided!"
-	exit
-end
-
-valid_options = @config["valid_options"]
-
-#TODO remove this optparse now that a config is being used
 options = {:services => []}
 OptionParser.new do |parser|
 	parser.banner = "Usage: startup <app-name> [options]"
@@ -135,13 +150,5 @@ end.parse!
 options[:services] += ARGV[1...ARGV.length]
 
 app = ARGV.first
-puts "Please provide a better app name." unless valid_options.include? app
-exit unless valid_options.include? app
 
-def osascript(script)
-  system 'osascript', *script.split(/\n/).map { |line| ['-e', line] }.flatten
-end
-
-
-
-startup(app,options[:port],options[:profile],options[:services])
+Startup.new(app, options).execute
